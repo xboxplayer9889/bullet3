@@ -81,6 +81,7 @@ struct caster2
 #include "LoadShader.h"
 
 #include "GLInstanceRendererInternalData.h"
+#include "GLInstanceGraphicsShape.h"
 
 //GLSL shader strings, embedded using build3/stringify
 #include "Shaders/pointSpriteVS.h"
@@ -397,6 +398,12 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 	m_data->m_instance_quaternion_ptr.resize(m_data->m_maxNumObjectCapacity * 4);
 	m_data->m_instance_colors_ptr.resize(m_data->m_maxNumObjectCapacity * 4);
 	m_data->m_instance_scale_ptr.resize(m_data->m_maxNumObjectCapacity * 4);
+	
+	GLInstanceVertex* calc_pos = new GLInstanceVertex();
+	pos_xyzw = reinterpret_cast<float *>(calc_pos->xyzw) - reinterpret_cast<float *>(calc_pos);
+	pos_normal = reinterpret_cast<float *>(calc_pos->normal) - reinterpret_cast<float *>(calc_pos);
+	pos_uv = reinterpret_cast<float *>(calc_pos->uv) - reinterpret_cast<float *>(calc_pos);
+	delete calc_pos;
 }
 
 void GLInstancingRenderer::removeAllInstances()
@@ -1147,7 +1154,7 @@ void GLInstancingRenderer::updateShape(int shapeIndex, const float* vertices, in
 		return;
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
-	int vertexStrideInBytes = 9 * sizeof(float);
+	int vertexStrideInBytes = sizeof(GLInstanceVertex); // 9 * sizeof(float);
 	int sz = numvertices * vertexStrideInBytes;
 #if 0
 	char* dest=  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_WRITE_ONLY);//GL_WRITE_ONLY
@@ -1186,7 +1193,7 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	gfxObj->m_numIndices = numIndices;
 	gfxObj->m_numVertices = numvertices;
 
-	int vertexStrideInBytes = 9 * sizeof(float);
+	int vertexStrideInBytes = sizeof(GLInstanceVertex); // 9 * sizeof(float);
 	int sz = numvertices * vertexStrideInBytes;
 	int totalUsed = vertexStrideInBytes * gfxObj->m_vertexArrayOffset + sz;
 	b3Assert(totalUsed < m_data->m_maxShapeCapacityInBytes);
@@ -2478,25 +2485,25 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 				glBindVertexArray(gfxObj->m_cube_vao);
 
-				int vertexStride = 9 * sizeof(float);
+				int vertexStride = sizeof(GLInstanceVertex); // 9 * sizeof(float);
 				PointerCaster vertex;
-				vertex.m_baseIndex = gfxObj->m_vertexArrayOffset * vertexStride;
+				vertex.m_baseIndex = gfxObj->m_vertexArrayOffset * vertexStride + pos_xyzw*sizeof(float);
 
 				//vertex position
-				glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), vertex.m_pointer);
+				glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, vertexStride, vertex.m_pointer);
 				//instance_position
 				glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(transparentInstances[i].m_instanceId * 4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes));
 				//instance_quaternion
 				glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(transparentInstances[i].m_instanceId * 4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE));
 
 				PointerCaster uv;
-				uv.m_baseIndex = 7 * sizeof(float) + vertex.m_baseIndex;
+				uv.m_baseIndex = gfxObj->m_vertexArrayOffset * vertexStride + pos_uv*sizeof(float);
 
 				PointerCaster normal;
-				normal.m_baseIndex = 4 * sizeof(float) + vertex.m_baseIndex;
+				normal.m_baseIndex = gfxObj->m_vertexArrayOffset * vertexStride + pos_normal*sizeof(float);
 
-				glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), uv.m_pointer);
-				glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), normal.m_pointer);
+				glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, vertexStride, uv.m_pointer);
+				glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, vertexStride, normal.m_pointer);
 				//instance_color
 				glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(transparentInstances[i].m_instanceId * 4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE + ORIENTATION_BUFFER_SIZE));
 				//instance_scale
