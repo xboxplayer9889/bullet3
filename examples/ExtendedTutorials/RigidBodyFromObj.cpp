@@ -84,8 +84,15 @@ void RigidBodyFromObjExample::initPhysics()
 	GLInstanceGraphicsShape* glmesh = LoadMeshFromObj(relativeFileName, "",&fileIO);
 	printf("[INFO] Obj loaded: Extracted %d verticed from obj file [%s]\n", glmesh->m_numvertices, fileName);
 
+
+	/*
+	 *	GLInstanceVertex and Renderer uses floats, not compatible data from btScalar this way if Double_Prec
+	 */
 	const GLInstanceVertex& v = glmesh->m_vertices->at(0);
 	btConvexHullShape* shape = new btConvexHullShape((const btScalar*)(&(v.xyzw[0])), glmesh->m_numvertices, sizeof(GLInstanceVertex));
+	/* one solution is shape->AddPoint in cycle */
+
+	
 
 	float scaling[4] = {0.1, 0.1, 0.1, 1};
 
