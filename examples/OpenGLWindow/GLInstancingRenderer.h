@@ -32,6 +32,9 @@ class GLInstancingRenderer : public CommonRenderInterface
 	int m_screenWidth;
 	int m_screenHeight;
 
+	// distance in GLInstanceVertex struct ( in floats ) 
+	int pos_xyzw, pos_normal, pos_uv;
+
 	int m_upAxis;
 
 	int m_planeReflectionShapeIndex;
