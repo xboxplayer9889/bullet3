@@ -89,10 +89,16 @@ void RigidBodyFromObjExample::initPhysics()
 	 *	GLInstanceVertex and Renderer uses floats, not compatible data from btScalar this way if Double_Prec
 	 */
 	const GLInstanceVertex& v = glmesh->m_vertices->at(0);
-	btConvexHullShape* shape = new btConvexHullShape((const btScalar*)(&(v.xyzw[0])), glmesh->m_numvertices, sizeof(GLInstanceVertex));
-	/* one solution is shape->AddPoint in cycle */
-
-	
+	//btConvexHullShape* shape = new btConvexHullShape((const btScalar*)(&(v.xyzw[0])), glmesh->m_numvertices, sizeof(GLInstanceVertex));
+	/* one solution is shape->addPoint in cycle */
+	btConvexHullShape* shape = new btConvexHullShape();
+    for (int i = 0; i < glmesh->m_numvertices; i++) {
+        shape->addPoint(btVector3(
+			glmesh->m_vertices->at(i).xyzw[0],
+			glmesh->m_vertices->at(i).xyzw[1],
+			glmesh->m_vertices->at(i).xyzw[2]
+		), false);
+    }
 
 	float scaling[4] = {0.1, 0.1, 0.1, 1};
 
