@@ -122,6 +122,10 @@ ELSE(WIN32)
 	ENDIF(APPLE)
 ENDIF(WIN32)
 
+SET(myProjects
+	../myProjects/myTest/myTest.cpp
+	../myProjects/myTest/myTest.h
+)
 
 SET(ExtendedTutorialsSources
 	../ExtendedTutorials/Chain.cpp 
@@ -434,8 +438,9 @@ ADD_EXECUTABLE(App_ExampleBrowser
 		main.cpp
 		ExampleEntries.cpp
 		ExampleEntries.h
+		${myProjects}
 		${ExtendedTutorialsSources}
-		${BulletExampleBrowser_SRCS} 
+		${BulletExampleBrowser_SRCS}
 )
 
 FILE( MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/data" )

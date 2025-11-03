@@ -114,6 +114,10 @@
 #include "../ExtendedTutorials/MultiPendulum.h"
 #include "../Evolution/NN3DWalkers.h"
 
+
+//myProjects
+#include "../myProjects/myTest/myTest.h"
+
 struct ExampleEntry
 {
 	int m_menuLevel;
@@ -135,6 +139,9 @@ struct ExampleEntry
 
 static ExampleEntry gDefaultExamples[] =
 	{
+		ExampleEntry(0, "myProjects"),
+		ExampleEntry(1, "myTest", "just a first test. ", ET_myTestCreateFunc),
+
 		ExampleEntry(0, "API"),
 
 		ExampleEntry(1, "Basic Example", "Create some rigid bodies using box collision shapes. This is a good example to familiarize with the basic initialization of Bullet. The Basic Example can also be compiled without graphical user interface, as a console application. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", BasicExampleCreateFunc),
