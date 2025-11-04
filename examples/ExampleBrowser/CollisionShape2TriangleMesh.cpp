@@ -53,10 +53,29 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 			break;
 		}
 		case TRIANGLE_MESH_SHAPE_PROXYTYPE:
-		{
-			btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*)collisionShape;
-			btVector3 trimeshScaling = trimesh->getLocalScaling();
-			btStridingMeshInterface* meshInterface = trimesh->getMeshInterface();
+		// ** btGImpactMeshShape has not created or empty graphic shape ** //
+		case GIMPACT_SHAPE_PROXYTYPE:
+                {
+                    btStridingMeshInterface* meshInterface;
+                    btVector3 trimeshScaling;
+                    switch (collisionShape->getShapeType()) {
+                        case TRIANGLE_MESH_SHAPE_PROXYTYPE:
+                        {
+                            btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*)collisionShape;
+                            trimeshScaling = trimesh->getLocalScaling();
+                            meshInterface = trimesh->getMeshInterface();
+                            break;
+                        }
+                        case GIMPACT_SHAPE_PROXYTYPE: 
+                        {
+                            btGImpactMeshShape* imesh = (btGImpactMeshShape*)collisionShape;
+                            trimeshScaling = imesh->getLocalScaling();
+                            meshInterface = imesh->getMeshInterface();
+                            break;
+                        }
+                        default:
+                            break;
+                    }
 			btAlignedObjectArray<btVector3> vertices;
 			btAlignedObjectArray<int> indices;
 
