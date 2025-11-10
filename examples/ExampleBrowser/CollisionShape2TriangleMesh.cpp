@@ -6,6 +6,8 @@
 #include "BulletCollision/CollisionShapes/btConvexPolyhedron.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 
+#define DSP_GMIPACTMESHSAPE_AS_TRIMESH 1
+
 void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTransform& parentTransform, btAlignedObjectArray<btVector3>& vertexPositions, btAlignedObjectArray<btVector3>& vertexNormals, btAlignedObjectArray<int>& indicesOut)
 
 {
@@ -55,7 +57,9 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 		}
 		case TRIANGLE_MESH_SHAPE_PROXYTYPE:
 		// ** btGImpactMeshShape has not created or empty graphic shape ** //
+#ifdef DSP_GMIPACTMESHSAPE_AS_TRIMESH
 		case GIMPACT_SHAPE_PROXYTYPE:
+#endif	 
                 {
                     btStridingMeshInterface* meshInterface;
                     btVector3 trimeshScaling;
