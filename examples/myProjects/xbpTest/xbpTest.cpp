@@ -8,32 +8,73 @@
 #include "xbpTest.h"
 
 #include "../../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../../CommonInterfaces/CommonParameterInterface.h"
 
 #include "../../Importers/ImportMeshUtility/b3ImportMeshUtility.h"
 #include "../../Utils/b3BulletDefaultFileIO.h"
 #include "../../OpenGLWindow/GLInstanceGraphicsShape.h"
 
-const char* groundfile = "examples/myProjects/3ddata/spin.obj";
+//const char* groundfile = "examples/myProjects/3ddata/spin.obj";
 
 struct xbpTest: public CommonRigidBodyBase
 {
-	int m_options;
+    int m_options;
 
-	xbpTest(struct GUIHelperInterface* helper, int options)
-		: CommonRigidBodyBase(helper),
-		  m_options(options)
-	{
-	}
-	virtual ~xbpTest() {}
-	virtual void initPhysics();
-	virtual void renderScene();
-	void resetCamera();
+    xbpTest(struct GUIHelperInterface* helper, int options);
+    virtual ~xbpTest() {}
+    virtual void initPhysics();
+    virtual void renderScene();
+    void resetCamera();
+    
+private:
+    std::string selectedobj = "";
+    void setSelectedObj(const char* fn);
+    const char* getSelectedObj();
+    static void buttonPressed( int buttonId, bool buttonState, void* userPointer );
+    static void comboChanged(int combobox, const char* item, void* userPointer);
 };
-	
+
+
+xbpTest::xbpTest(struct GUIHelperInterface* helper, int options) : CommonRigidBodyBase(helper) {
+    
+    this->m_options = options;
+    
+    // Setup parameters
+    char* x[2] = { "examples/myProjects/3ddata/spin.obj", "data/samurai_monastry.obj" };
+    setSelectedObj(x[0]);
+
+    ComboBoxParams cbp;
+    cbp.m_items = (const char**)&x;
+    cbp.m_numItems = 2;
+    cbp.m_startItem = 0;
+    cbp.m_userPointer = this;
+    cbp.m_callback = xbpTest::comboChanged;
+    m_guiHelper->getParameterInterface()->registerComboBox(cbp);
+    
+    ButtonParams bp("Load & Restart",0,false);
+    bp.m_userPointer = this;
+    bp.m_callback = xbpTest::buttonPressed;
+    m_guiHelper->getParameterInterface()->registerButtonParameter(bp);
+}
+
+void xbpTest::buttonPressed( int buttonId, bool buttonState, void* userPointer ){
+    if (userPointer) {
+        xbpTest* self = ((xbpTest*)userPointer);
+        self->exitPhysics();
+        self->m_guiHelper->removeAllGraphicsInstances();
+        self->initPhysics();
+    }
+}
+void xbpTest::comboChanged(int combobox, const char* item, void* userPointer) {
+    if (userPointer) {
+        ((xbpTest*)userPointer)->setSelectedObj( item );
+    }
+}
+
 void xbpTest::initPhysics() {
     this->m_guiHelper->setUpAxis(1.0f);
     this->createEmptyDynamicsWorld();
-    
+        
     float scale = 3.0f;
     btScalar mass = 0.0f;
     btVector3 position = btVector3( 0.0f,0.0f,0.0f );
@@ -41,7 +82,7 @@ void xbpTest::initPhysics() {
     // import obj example: examples/Importers/ImportMeshUtility/b3ImportMeshUtility
     b3ImportMeshData meshdata;
     b3BulletDefaultFileIO fileio;
-    if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal( groundfile, meshdata, &fileio ) ) {
+    if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal( getSelectedObj(), meshdata, &fileio ) ) {
         
         btTriangleMesh* mesh = new btTriangleMesh();
         for (int i=0; i<meshdata.m_gfxShape->m_numIndices; i+=3) {
@@ -86,6 +127,14 @@ void xbpTest::initPhysics() {
     btRigidBody* body = createRigidBody(mass, transf, shape, color);
     
     this->m_guiHelper->autogenerateGraphicsObjects(this->m_dynamicsWorld);
+}
+
+void xbpTest::setSelectedObj(const char* fn) {
+    this->selectedobj = fn;
+}
+
+const char* xbpTest::getSelectedObj() {
+    return this->selectedobj.c_str();    
 }
 
 void xbpTest::renderScene(){
