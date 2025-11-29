@@ -117,6 +117,7 @@
 
 //myProjects
 #include "../myProjects/myTest/myTest.h"
+#include "../myProjects/xbpTest/xbpTest.h"
 
 struct ExampleEntry
 {
@@ -141,6 +142,7 @@ static ExampleEntry gDefaultExamples[] =
 	{
 		ExampleEntry(0, "myProjects"),
 		ExampleEntry(1, "myTest", "just a first test. ", ET_myTestCreateFunc),
+        ExampleEntry(1, "xbpTest", "myDroptest. ", XBP_myTestCreateFunc),
 
 		ExampleEntry(0, "API"),
 

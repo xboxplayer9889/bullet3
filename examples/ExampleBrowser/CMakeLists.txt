@@ -125,6 +125,8 @@ ENDIF(WIN32)
 SET(myProjects
 	../myProjects/myTest/myTest.cpp
 	../myProjects/myTest/myTest.h
+	../myProjects/xbpTest/xbpTest.cpp
+	../myProjects/xbpTest/xbpTest.h
 )
 
 SET(ExtendedTutorialsSources
