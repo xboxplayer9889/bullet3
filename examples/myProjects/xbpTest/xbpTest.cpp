@@ -55,6 +55,9 @@ xbpTest::xbpTest(struct GUIHelperInterface* helper, int options) : CommonRigidBo
     bp.m_userPointer = this;
     bp.m_callback = xbpTest::buttonPressed;
     m_guiHelper->getParameterInterface()->registerButtonParameter(bp);
+    
+    //increase default shadow map size because of smaurai_monastry is much bigger (TODO:calc the correct size)
+    m_guiHelper->getRenderInterface()->setShadowMapWorldSize(100);
 }
 
 void xbpTest::buttonPressed( int buttonId, bool buttonState, void* userPointer ){
